@@ -1,0 +1,23 @@
+name: etender collector
+
+on:
+  schedule:
+    # hər 10 dəqiqə (sınaq üçün; Actions cron-u bəzən 2-5 dəq gecikə bilər)
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}   # və ya "Run workflow" düyməsi ilə əl ilə
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run collector
+        env:
+          INGESTER_URL: ${{ secrets.INGESTER_URL }}
+          INGEST_SECRET: ${{ secrets.INGEST_SECRET }}
+          LOOKBACK_HOURS: ${{ vars.LOOKBACK_HOURS || '24' }}
+        run: python collector.py
